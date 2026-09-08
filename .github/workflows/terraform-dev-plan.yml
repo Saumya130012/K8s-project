@@ -1,0 +1,36 @@
+name: Terraform Dev Plan
+
+on:
+	push:
+		branches: ["dev"]
+	pull_request:
+		branches: ["dev"]
+
+jobs:
+	terraform-plan:
+		name: Terraform Plan
+		runs-on: ubuntu-latest
+
+		steps:
+			- name: Checkout
+				uses: actions/checkout@v4
+
+			- name: Setup Terraform
+				uses: hashicorp/setup-terraform@v2
+				with:
+					terraform_version: 1.5.6
+
+			- name: Terraform Init
+				run: terraform init -input=false
+
+			- name: Terraform Validate
+				run: terraform validate
+
+			- name: Terraform Plan
+				run: terraform plan -input=false -out=plan.tfplan
+
+			- name: Upload plan artifact
+				uses: actions/upload-artifact@v4
+				with:
+					name: terraform-plan
+					path: plan.tfplan
